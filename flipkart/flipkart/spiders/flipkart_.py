@@ -8,15 +8,18 @@ logging.basicConfig(filename="logger.log", level=logging.INFO, format='%(asctime
 class FlipkartSpider(scrapy.Spider):
     logging.info("Scraping Started!")
     name = "flipkart_"
-    allowed_domains = ["flipkart.com"]
-    start_urls = ["https://www.flipkart.com/search?q=iphon12"]
+
+    def __init__(self, url='', **kwargs):
+        super().__init__(**kwargs)
+        self.start_urls = [url]
+
 
     def parse(self, response):
         logging.info("Search page scraping started!")
         global product_url
         body = response.body
         body_html = bs(body, 'html.parser')
-        logging.info("tereiysdiofhkds")
+
         try:
             page_div = body_html.findAll("div", {"class":"_1AtVbE col-12-12"})
             logging.info(f"page div value: {page_div}")
@@ -35,6 +38,7 @@ class FlipkartSpider(scrapy.Spider):
         
         try:
             commentboxes = body_html.find_all("div", {"class":"_16PBlm"})
+            logging.info(f"len of commentboxes {len(commentboxes)}")
             logging.info(commentboxes)
         except Exception as e:
             logging.info(e)
@@ -78,7 +82,8 @@ class FlipkartSpider(scrapy.Spider):
             except Exception as e:
                 logging.info(e)
             
-            my_dict = {"Product": product_name,"URL": product_url ,"Name": name, "Rating": rating, "CommentHead": comment_heading, "Comment": review}
+            my_dict = {"Product": product_name,"Name": name, "Rating": rating, "CommentHead": comment_heading, "Comment": review,"URL": product_url}
+            
             review_list.append(my_dict)
 
             yield my_dict
